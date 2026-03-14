@@ -1,59 +1,241 @@
-# MatflowWorkspace
+# Matflow
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.2.1.
+Matflow is a **modern, extensible Angular UI framework** built on top of
+**Angular CDK** and **Angular Material**.
 
-## Development server
+The project provides flexible and composable building blocks such as
+**overlays, popovers, tables, and grid utilities** designed for scalable
+Angular applications and enterprise UI systems.
 
-To start a local development server, run:
+Matflow focuses on **extensibility, composability, and modern Angular
+architecture**, allowing developers to build advanced UI systems while
+maintaining performance and developer productivity.
 
-```bash
+------------------------------------------------------------------------
+
+# ✨ Features
+
+-   Built on **Angular CDK**
+-   Compatible with **Angular 17+ / 18 / 19 / 20 / 21**
+-   **Standalone-first architecture**
+-   Flexible **Overlay & Popover system**
+-   Extensible **Table and Grid framework**
+-   **Plugin based architecture**
+-   Fully **TypeScript typed APIs**
+-   Lightweight and **tree‑shakeable**
+-   Designed for **enterprise Angular applications**
+
+------------------------------------------------------------------------
+
+# 🧠 Design Philosophy
+
+Matflow follows several core design principles.
+
+### Extensibility First
+
+Components are designed to be extended through directives, configuration
+objects, and plugin systems.
+
+### Composable Primitives
+
+Matflow provides flexible UI primitives instead of rigid components.
+
+### CDK Powered
+
+Core infrastructure is built using **Angular CDK** to ensure stability,
+accessibility, and performance.
+
+### Modern Angular
+
+Matflow embraces modern Angular features including:
+
+-   Standalone APIs
+-   Typed templates
+-   Modern control flow (`@if`, `@for`)
+-   Directive composition patterns
+
+------------------------------------------------------------------------
+
+# 📦 Installation
+
+Install Angular dependencies if not already installed:
+
+``` bash
+npm install @angular/cdk @angular/material
+```
+
+Install Matflow packages (once published):
+
+``` bash
+npm install matflow
+```
+
+------------------------------------------------------------------------
+
+# 🚀 Development Server
+
+To start the demo application locally:
+
+``` bash
 ng serve
 ```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+Once the server is running, open:
 
-## Code scaffolding
+    http://localhost:4200/
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+The application will automatically reload whenever you modify any source
+files.
 
-```bash
+------------------------------------------------------------------------
+
+# 📌 Popover Example
+
+Matflow includes a flexible **CDK-based popover system**.
+
+``` html
+<button
+  #trigger="matflowPopoverTrigger"
+  [matflowPopoverTriggerFor]="popover"
+  (click)="trigger.toggle()">
+  Open Popover
+</button>
+
+<ng-template matflowPopover #popover="matflowPopover">
+  <div class="popover-panel">
+    Hello from Matflow 🎉
+  </div>
+</ng-template>
+```
+
+------------------------------------------------------------------------
+
+# 🧱 Core Modules
+
+Matflow is designed as a **modular framework**.
+
+  Module    Description
+  --------- ------------------------------------
+  Overlay   Core overlay infrastructure
+  Popover   Contextual popover system
+  Table     Smart table framework
+  Grid      Advanced grid utilities
+  Core      Shared utilities and internal APIs
+
+------------------------------------------------------------------------
+
+# 🏗 Project Structure
+
+    projects
+    │
+    ├ matflow-overlay
+    │   └ popover system
+    │
+    ├ matflow-table
+    │   └ table framework
+    │
+    ├ matflow-grid
+    │   └ advanced grid utilities
+    │
+    └ demo
+        └ demo application
+
+------------------------------------------------------------------------
+
+# 🛠 Code Scaffolding
+
+Angular CLI includes powerful scaffolding tools.
+
+Generate a component:
+
+``` bash
 ng generate component component-name
 ```
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+List all schematics:
 
-```bash
+``` bash
 ng generate --help
 ```
 
-## Building
+------------------------------------------------------------------------
 
-To build the project run:
+# 🏗 Building
 
-```bash
+Build the project using:
+
+``` bash
 ng build
 ```
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+The compiled artifacts will be stored in the:
 
-## Running unit tests
+    dist/
 
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
+directory.
 
-```bash
+------------------------------------------------------------------------
+
+# 🧪 Running Unit Tests
+
+Execute unit tests with **Vitest**:
+
+``` bash
 ng test
 ```
 
-## Running end-to-end tests
+------------------------------------------------------------------------
 
-For end-to-end (e2e) testing, run:
+# 🔍 End-to-End Testing
 
-```bash
+Run end-to-end tests using:
+
+``` bash
 ng e2e
 ```
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+Angular CLI does not include an E2E framework by default, so you can
+integrate tools like:
 
-## Additional Resources
+-   Playwright
+-   Cypress
+-   WebdriverIO
 
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+------------------------------------------------------------------------
+
+# 📌 Roadmap
+
+Planned features include:
+
+-   Advanced overlay positioning
+-   Smart Table framework
+-   Column builder system
+-   Table plugin architecture
+-   Sorting and filtering plugins
+-   Pagination plugins
+-   Row expansion support
+-   Virtualized data rendering
+-   GraphQL integration utilities
+
+------------------------------------------------------------------------
+
+# 🤝 Contributing
+
+Contributions are welcome.
+
+1.  Fork the repository
+2.  Create a feature branch
+3.  Commit your changes
+4.  Submit a pull request
+
+------------------------------------------------------------------------
+
+# 📄 License
+
+MIT License
+
+------------------------------------------------------------------------
+
+# ⭐ Support
+
+If you find Matflow useful, please consider **starring the repository**.
