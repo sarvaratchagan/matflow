@@ -1,0 +1,60 @@
+<h2>Matflow Popover Demo</h2>
+
+<!-- Basic Example -->
+
+<button
+  #trigger="matflowPopoverTrigger"
+  [matflowPopoverTriggerFor]="popover"
+  (click)="trigger.toggle()">
+  Open Popover
+</button>
+
+<ng-template
+  matflowPopover
+  #popover="matflowPopover">
+
+  <div class="popover-panel">
+    🎉 Hello from Matflow Popover
+  </div>
+
+</ng-template>
+
+<hr>
+
+<h3>Popover With Context</h3>
+
+<ul>
+
+  @for (user of users; track user.id) {
+
+  <li>
+
+  {{ user.name }}
+
+  <button
+    #userTrigger="matflowPopoverTrigger"
+    [matflowPopoverTriggerFor]="userPopover"
+    [matflowPopoverContext]="user"
+    (click)="userTrigger.toggle()">
+    Info
+  </button>
+
+</li>
+
+  }
+
+</ul>
+
+<ng-template
+  matflowPopover
+  #userPopover="matflowPopover"
+  let-user>
+
+  <div class="popover-panel">
+
+    <strong>{{ user.name }}</strong>
+    <p>{{ user.role }}</p>
+
+  </div>
+
+</ng-template>
