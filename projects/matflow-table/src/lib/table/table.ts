@@ -10,7 +10,7 @@ import { TableColumn } from '../table-column/table-column';
 import { TableSettingsSource } from './table-settings-source';
 import { TableColumnSetting } from './table-column-setting';
 
-class MatflowTableSettings implements TableSettingsSource {
+export class MatflowTableSettings implements TableSettingsSource {
   private availableColumnsSubject = new ReplaySubject<TableColumn[]>(1);
 
   settingLoadedSubject = new ReplaySubject<boolean | undefined>(1);

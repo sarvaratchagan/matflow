@@ -1,20 +1,16 @@
 import { Component } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
-import { NgFor} from '@angular/common';
 import { MatflowOverlayModule } from 'matflow-overlay';
 
 @Component({
-  selector: 'app-root',
+  selector: 'app-popover-example',
+  templateUrl: './popover-example.html',
+  styleUrl: './popover-example.scss',
   imports: [
-    RouterOutlet,
-    NgFor,
     MatflowOverlayModule
   ],
-  templateUrl: './app.html',
-  styleUrl: './app.scss',
   standalone: true
 })
-export class App {
+export class PopoverExample {
   title = 'Matflow Overlay Demo';
 
   users = [

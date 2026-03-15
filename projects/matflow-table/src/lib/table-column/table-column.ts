@@ -222,9 +222,9 @@ export class TableColumnDirective <T>  implements OnInit, OnDestroy {
       this.matColumnDef.headerCell = this.headerCellDef;
     }
 
-    if (this.matTable && this.matColumnDef) {
-      this.matTable.addColumnDef(this.matColumnDef);
-    }
+    // if (this.matTable && this.matColumnDef) {
+    //   this.matTable.addColumnDef(this.matColumnDef);
+    // }
 
     this.init();
   }
@@ -281,8 +281,8 @@ export class TableColumnDirective <T>  implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    if (this.matTable && this.matColumnDef) {
-      this.matTable.removeColumnDef(this.matColumnDef);
-    }
+    // if (this.matTable && this.matColumnDef) {
+    //   this.matTable.removeColumnDef(this.matColumnDef);
+    // }
   }
 }
