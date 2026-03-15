@@ -4,7 +4,7 @@ Matflow is a **modern, extensible Angular UI framework** built on top of
 **Angular CDK** and **Angular Material**.
 
 The project provides flexible and composable building blocks such as
-**overlays, popovers, tables, and grid utilities** designed for scalable
+**overlays, tables, and graphql utilities** designed for scalable
 Angular applications and enterprise UI systems.
 
 Matflow focuses on **extensibility, composability, and modern Angular
@@ -18,8 +18,8 @@ maintaining performance and developer productivity.
 -   Built on **Angular CDK**
 -   Compatible with **Angular 17+ / 18 / 19 / 20 / 21**
 -   **Standalone-first architecture**
--   Flexible **Overlay & Popover system**
--   Extensible **Table and Grid framework**
+-   Flexible **Overlay system**
+-   Extensible **Table framework**
 -   **Plugin based architecture**
 -   Fully **TypeScript typed APIs**
 -   Lightweight and **tree‑shakeable**
@@ -110,6 +110,88 @@ Matflow includes a flexible **CDK-based popover system**.
 
 ------------------------------------------------------------------------
 
+# 📌 Table Example
+
+Matflow includes a flexible **declarative table system**.
+
+``` html
+<table
+  mat-table
+  [dataSource]="data"
+  matflowTable>
+
+  <ng-container matflowTableColumns>
+    <!-- ID -->
+    <ng-container
+      matColumnDef="id"
+      matflowTableColumn="ID"
+      name="id"
+      queryable
+      required>
+
+      <th mat-header-cell *matHeaderCellDef>ID</th>
+      <td mat-cell *matCellDef="let row">
+        {{ row.id }}
+      </td>
+
+    </ng-container>
+
+
+    <!-- Name -->
+    <ng-container
+      matColumnDef="name"
+      matflowTableColumn="Name"
+      name="name"
+      queryable
+      groupable>
+
+      <th mat-header-cell *matHeaderCellDef>Name</th>
+      <td mat-cell *matCellDef="let row">
+        {{ row.name }}
+      </td>
+
+    </ng-container>
+
+
+    <!-- Email -->
+    <ng-container
+      matColumnDef="email"
+      matflowTableColumn="Email"
+      name="email"
+      queryable>
+
+      <th mat-header-cell *matHeaderCellDef>Email</th>
+      <td mat-cell *matCellDef="let row">
+        {{ row.email }}
+      </td>
+
+    </ng-container>
+
+
+    <!-- Active -->
+    <ng-container
+      matColumnDef="active"
+      matflowTableColumn="Active"
+      name="active">
+
+      <th mat-header-cell *matHeaderCellDef>Active</th>
+      <td mat-cell *matCellDef="let row">
+        {{ row.active }}
+      </td>
+
+    </ng-container>
+  </ng-container>
+
+  <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+  <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+
+</table>
+
+```
+
+------------------------------------------------------------------------
+
+
 # 🧱 Core Modules
 
 Matflow is designed as a **modular framework**.
@@ -134,8 +216,8 @@ Matflow is designed as a **modular framework**.
     ├ matflow-table
     │   └ table framework
     │
-    ├ matflow-grid
-    │   └ advanced grid utilities
+    ├ matflow-graphql
+    │   └ advanced graphql utilities
     │
     └ demo
         └ demo application
@@ -208,12 +290,11 @@ integrate tools like:
 Planned features include:
 
 -   Advanced overlay positioning
--   Smart Table framework
+-   Table framework
 -   Column builder system
 -   Table plugin architecture
 -   Sorting and filtering plugins
 -   Pagination plugins
--   Row expansion support
 -   Virtualized data rendering
 -   GraphQL integration utilities
 

@@ -1,1 +1,19 @@
 /* You can add global styles to this file, and also import other style files */
+@use '@angular/material' as mat;
+@use '../../matflow-table/src/styles' as matflow;
+
+@include mat.core();
+
+$theme: mat.define-theme((
+  color: (
+    theme-type: light,
+    primary: mat.$blue-palette,
+    tertiary: mat.$orange-palette
+  ),
+  density: (
+    scale: 0
+  )
+));
+
+@include mat.all-component-themes($theme);
+@include matflow.theme($theme);

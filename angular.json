@@ -123,6 +123,32 @@
           }
         }
       }
+    },
+    "matflow-graphql": {
+      "projectType": "library",
+      "root": "projects/matflow-graphql",
+      "sourceRoot": "projects/matflow-graphql/src",
+      "prefix": "matflow",
+      "architect": {
+        "build": {
+          "builder": "@angular/build:ng-packagr",
+          "configurations": {
+            "production": {
+              "tsConfig": "projects/matflow-graphql/tsconfig.lib.prod.json"
+            },
+            "development": {
+              "tsConfig": "projects/matflow-graphql/tsconfig.lib.json"
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "test": {
+          "builder": "@angular/build:unit-test",
+          "options": {
+            "tsConfig": "projects/matflow-graphql/tsconfig.spec.json"
+          }
+        }
+      }
     }
   }
 }
