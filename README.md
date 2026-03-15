@@ -1,5 +1,12 @@
 # Matflow
 
+![Angular](https://img.shields.io/badge/Angular-17%2B-DD0031?logo=angular)
+![Angular CDK](https://img.shields.io/badge/CDK-Angular%20CDK-673AB7)
+![TypeScript](https://img.shields.io/badge/TypeScript-Strict-3178C6?logo=typescript)
+![Standalone](https://img.shields.io/badge/Angular-Standalone%20API-0ea5e9)
+![License](https://img.shields.io/badge/license-MIT-blue)
+![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen)
+
 Matflow is a **modern, extensible Angular UI framework** built on top of
 **Angular CDK** and **Angular Material**.
 
