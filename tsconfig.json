@@ -7,7 +7,8 @@
     "noImplicitOverride": true,
     "noPropertyAccessFromIndexSignature": false,
     "paths": {
-      "matflow-overlay": ["./dist/matflow-overlay"]
+      "matflow-overlay": ["./dist/matflow-overlay"],
+      "matflow-table": ["./dist/matflow-table"]
     },
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
@@ -37,6 +38,12 @@
     },
     {
       "path": "./projects/demo/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/matflow-table/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/matflow-table/tsconfig.spec.json"
     }
   ]
 }

@@ -10,7 +10,7 @@
       "projectType": "library",
       "root": "projects/matflow-overlay",
       "sourceRoot": "projects/matflow-overlay/src",
-      "prefix": "lib",
+      "prefix": "matflow",
       "architect": {
         "build": {
           "builder": "@angular/build:ng-packagr",
@@ -95,6 +95,32 @@
         },
         "test": {
           "builder": "@angular/build:unit-test"
+        }
+      }
+    },
+    "matflow-table": {
+      "projectType": "library",
+      "root": "projects/matflow-table",
+      "sourceRoot": "projects/matflow-table/src",
+      "prefix": "matflow",
+      "architect": {
+        "build": {
+          "builder": "@angular/build:ng-packagr",
+          "configurations": {
+            "production": {
+              "tsConfig": "projects/matflow-table/tsconfig.lib.prod.json"
+            },
+            "development": {
+              "tsConfig": "projects/matflow-table/tsconfig.lib.json"
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "test": {
+          "builder": "@angular/build:unit-test",
+          "options": {
+            "tsConfig": "projects/matflow-table/tsconfig.spec.json"
+          }
         }
       }
     }
