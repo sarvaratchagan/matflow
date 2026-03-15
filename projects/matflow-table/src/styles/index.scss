@@ -1,0 +1,12 @@
+@forward './tokens';
+@forward './theme';
+
+@use './theme' as table;
+
+/**
+ * Main Matflow theme mixin
+ */
+
+@mixin theme($theme) {
+  @include table.table-theme($theme);
+}

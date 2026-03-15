@@ -1,0 +1,13 @@
+@use '@angular/material' as mat;
+
+/**
+ * Matflow design tokens
+ */
+
+@function matflow-color($theme, $palette) {
+  @return mat.get-theme-color($theme, $palette);
+}
+
+@function matflow-typography($theme) {
+  @return mat.get-theme-typography($theme);
+}

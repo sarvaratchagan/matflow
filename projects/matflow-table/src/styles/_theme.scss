@@ -1,0 +1,32 @@
+@use '@angular/material' as mat;
+@use './tokens' as tokens;
+
+/**
+ * Matflow Table Theme
+ */
+
+@mixin table-theme($theme) {
+
+  $primary: mat.get-theme-color($theme, primary);
+
+  .matflow-table {
+
+    width: 100%;
+    border-collapse: collapse;
+
+    th {
+      font-weight: 600;
+      color: $primary;
+  }
+
+    td {
+      padding: 12px;
+  }
+
+    tr:hover {
+      background: rgba($primary, 0.05);
+  }
+
+}
+
+}
