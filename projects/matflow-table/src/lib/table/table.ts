@@ -134,7 +134,7 @@ export class TableDirective implements OnInit, AfterContentInit, OnDestroy {
               displayed: true
             }))
           );
-
+          this.tableSettingsSource.settingLoadedSubject.next(true);
           this.loadingSubject.next(false);
         },
 

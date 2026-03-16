@@ -1,8 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatTableModule } from '@angular/material/table';
 import { UserTableSettingsAdapter} from './user-table-settings-adapter';
-import { MatflowTableModule, TABLE_COLUMN_SETTINGS_ADAPTER } from 'matflow-table';
+import { MatflowTableModule, TABLE_COLUMN_SETTINGS_ADAPTER, TableDirective, TableColumn } from 'matflow-table';
+import { ReplaySubject, combineLatest, Observable } from 'rxjs';
+import { map, filter } from 'rxjs/operators';
 
 export interface User {
   id: number;
@@ -32,14 +34,43 @@ export interface User {
   ],
   standalone: true
 })
-export class UsersTableComponent implements OnInit {
+export class UsersTableComponent implements OnInit, AfterViewInit {
 
-  displayedColumns = ['id', 'name', 'email', 'role', 'department', 'country' , 'status', 'createdAt'];
+  @ViewChild(TableDirective)
+  usersTable!: TableDirective;
+
+  availableColumnsSubject = new ReplaySubject<TableColumn[]>(1);
+  availableColumns$ = this.availableColumnsSubject.asObservable();
+
+  displayedColumns$!: Observable<string[]>;
+
+  defaultColumns = ['id', 'name', 'email', 'role', 'department'];
 
   data: User[] = [];
 
   ngOnInit() {
     this.data = this.generateUsers(10000);
+  }
+
+  ngAfterViewInit() {
+    const displayedColumns$: Observable<(string | undefined)[]> = this.usersTable.displayedColumns$?.pipe(
+      filter(columns => !!columns)
+    );
+    this.displayedColumns$ = combineLatest([
+      this.availableColumns$,
+      displayedColumns$
+    ])?.pipe(
+      map(([availableColumns, displayedColumns]: [TableColumn[], (string | undefined)[]]) => {
+        return (
+          availableColumns
+            ?.filter(column =>
+              (displayedColumns || this.defaultColumns)
+                ?.includes(column?.field)
+            )
+            ?.map(col => col.field) ?? []
+        )
+      })
+    );
   }
 
   generateUsers(count: number): User[] {

@@ -9,7 +9,7 @@ import {
   QueryList
 } from '@angular/core';
 
-import { firstValueFrom, map, Observable } from 'rxjs';
+import { defaultIfEmpty, firstValueFrom, map, Observable, take } from 'rxjs';
 
 import { TableColumnDirective, TableColumn } from '../table-column/table-column';
 import { TABLE_SETTINGS_SOURCE } from '../table/table-settings-source.token';
@@ -46,24 +46,24 @@ export class TableColumnsDirective<T> implements AfterContentInit {
 
   async ngAfterContentInit(): Promise<void> {
 
-    const cols: TableColumn[] = await Promise.all(
+    let cols: TableColumn[] = await Promise.all(
       this.columns.map(async column => {
-
         const meta = column.meta;
-
         return {
           field: meta.name,
           label: meta.label,
-          alias: await firstValueFrom(column.alias$),
-
+          alias: await firstValueFrom(
+            column.alias$.pipe(
+              take(1),
+              defaultIfEmpty(meta.name)
+            )
+          ),
           queryable: meta.queryable,
           groupable: meta.groupable,
-
           readonly: meta.viewonly,
           required: meta.required,
           hidden: meta.hidden
         };
-
       })
     );
 
