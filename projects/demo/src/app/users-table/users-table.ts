@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import { MatTableModule } from '@angular/material/table';
 import { UserTableSettingsAdapter} from './user-table-settings-adapter';
 import { MatflowTableModule, TABLE_COLUMN_SETTINGS_ADAPTER } from 'matflow-table';
@@ -7,7 +7,11 @@ export interface User {
   id: number;
   name: string;
   email: string;
-  active: boolean;
+  role: string;
+  department: string;
+  status: string;
+  country: string;
+  createdAt: Date;
 }
 
 @Component({
@@ -26,13 +30,36 @@ export interface User {
   ],
   standalone: true
 })
-export class UsersTableComponent {
+export class UsersTableComponent implements OnInit {
 
-  displayedColumns = ['id', 'name', 'email', 'active'];
+  displayedColumns = ['id', 'name', 'email', 'role', 'department', 'country' , 'status', 'createdAt'];
 
-  data: User[] = [
-    { id: 1, name: 'John', email: 'john@mail.com', active: true },
-    { id: 2, name: 'Jane', email: 'jane@mail.com', active: false },
-    { id: 3, name: 'Alex', email: 'alex@mail.com', active: true }
-  ];
+  data: User[] = [];
+
+  ngOnInit() {
+    this.data = this.generateUsers(10000);
+  }
+
+  generateUsers(count: number): User[] {
+
+    const roles = ['Admin', 'Manager', 'User', 'Viewer'];
+    const departments = ['Engineering', 'Finance', 'HR', 'Marketing', 'Sales'];
+    const countries = ['USA', 'India', 'Germany', 'UK', 'Canada', 'Australia'];
+    const status = ['Active', 'Pending', 'Disabled'];
+
+    return Array.from({length: count}).map((_, i) => ({
+      id: i + 1,
+      name: `User ${i + 1}`,
+      email: `user${i + 1}@demo.com`,
+      role: roles[Math.floor(Math.random() * roles.length)],
+      department: departments[Math.floor(Math.random() * departments.length)],
+      status: status[Math.floor(Math.random() * status.length)],
+      country: countries[Math.floor(Math.random() * countries.length)],
+      createdAt: new Date(
+        2020 + Math.floor(Math.random() * 5),
+        Math.floor(Math.random() * 12),
+        Math.floor(Math.random() * 28)
+      )
+    }));
+  }
 }
