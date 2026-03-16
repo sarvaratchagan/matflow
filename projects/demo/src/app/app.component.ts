@@ -1,4 +1,4 @@
-import { Component, ViewEncapsulation } from '@angular/core';
+import { Component } from '@angular/core';
 import { RouterModule, RouterOutlet } from '@angular/router';
 
 @Component({
@@ -6,6 +6,6 @@ import { RouterModule, RouterOutlet } from '@angular/router';
   standalone: true,
   imports: [RouterOutlet, RouterModule],
   templateUrl: './app.component.html',
-  encapsulation: ViewEncapsulation.None
+  styleUrl: './app.component.scss'
 })
 export class AppComponent {}

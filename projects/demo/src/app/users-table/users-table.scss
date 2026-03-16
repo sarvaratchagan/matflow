@@ -1,0 +1,21 @@
+:host {
+  display: flex;
+  height: calc(100% - 76px);
+  overflow: auto;
+
+  .mdc-data-table {
+    &__header-row {
+      height: 34px;
+      th {
+        background: #f8f9fa;
+      }
+    }
+
+    &__row {
+      height: 34px;
+      td {
+        background: #ffffff;
+      }
+    }
+  }
+}
