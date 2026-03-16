@@ -1,4 +1,5 @@
-import {Component, OnInit} from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { MatTableModule } from '@angular/material/table';
 import { UserTableSettingsAdapter} from './user-table-settings-adapter';
 import { MatflowTableModule, TABLE_COLUMN_SETTINGS_ADAPTER } from 'matflow-table';
@@ -25,6 +26,7 @@ export interface User {
     }
   ],
   imports: [
+    CommonModule,
     MatflowTableModule,
     MatTableModule
   ],

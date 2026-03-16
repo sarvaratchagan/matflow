@@ -110,7 +110,7 @@
 
       <th mat-header-cell *matHeaderCellDef>Created At</th>
       <td mat-cell *matCellDef="let row">
-        {{ row.createdAt }}
+        {{ row.createdAt | date:'short'  }}
       </td>
 
     </ng-container>
