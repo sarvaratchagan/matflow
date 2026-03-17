@@ -239,9 +239,8 @@ export class TableColumnDirective <T>  implements OnInit, OnDestroy {
 
     this.alias$ = this.tableSettingsSource.loaded$?.pipe(
       filter(loaded => loaded !== undefined),
-      switchMap(() => {
-        return this.tableSettingsSource!.tableColumnSettings$ ?? of([])
-      }),
+      // TODO type casting problem
+      switchMap(() => this.tableSettingsSource!.tableColumnSettings$ ?? of([])),
       map((settings: TableColumnSetting[]) => {
         const column = settings?.find(
           s => s.name === this.matColumnDef?.name
