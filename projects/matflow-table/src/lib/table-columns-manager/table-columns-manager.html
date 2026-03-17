@@ -1,0 +1,92 @@
+<button
+  mat-icon-button
+  class="table-columns-editor__open-button"
+  aria-label="Column Settings"
+  (click)="open(templateRef)"
+>
+  <mat-icon>tune</mat-icon>
+</button>
+<ng-template #templateRef>
+  <div class="table-columns-editor">
+    <h2 class="table-columns-editor__header mat-h2 title">
+      Column Settings
+    </h2>
+
+    <button
+      class="table-columns-editor__close-button"
+      [disableRipple]="true"
+      mat-icon-button
+    >
+      <mat-icon (click)="close()">close</mat-icon>
+    </button>
+    <mat-divider
+      class="table-columns-editor__header-divider"
+    ></mat-divider>
+    <div
+      class="table-columns-editor__column-list-container"
+      cdkScrollable
+    >
+      <p>
+        Add or remove columns. To change the column order, drag and drop field
+      </p>
+      <form
+        class="table-columns-editor__column-form column-form"
+        [formGroup]="formGroup"
+        cdkDropList
+        (cdkDropListDropped)="drop($event)"
+      >
+        <ng-container formArrayName="columns">
+          <matflow-table-column-manager
+            class="table-column-editor"
+            *ngFor="
+              let tableColumn of formGroup.controls.columns.controls;
+              let position = index
+            "
+            [tableColumnFormGroup]="tableColumn"
+            [usedTableColumns]="(usedTableColumns$ | async) ?? []"
+            cdkDrag
+            [cdkDragPreviewContainer]="'parent'"
+            [cdkDragData]="tableColumn"
+            (remove)="remove($event)"
+          ></matflow-table-column-manager>
+        </ng-container>
+      </form>
+    </div>
+
+    <button
+      mat-button
+      color="primary"
+      [disabled]="!formGroup?.valid"
+      class="table-columns-editor__add-button mat-body-2"
+      (click)="add()"
+    >
+      <mat-icon
+        class="table-columns-editor__add-icon"
+        aria-hidden="false"
+      >
+        add
+      </mat-icon>
+      Add a Column
+    </button>
+
+    <button
+      mat-stroked-button
+      type="button"
+      color="primary"
+      class="table-columns-editor__restore-button"
+      (click)="restore()"
+    >
+      Restore Default
+    </button>
+    <button
+      [disabled]="!formGroup?.valid"
+      class="table-columns-editor__save-button"
+      mat-raised-button
+      color="primary"
+      type="button"
+      (click)="save()"
+    >
+      save
+    </button>
+  </div>
+</ng-template>

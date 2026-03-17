@@ -1,0 +1,91 @@
+.table-columns-editor {
+  display: flex;
+  flex-direction: column;
+  width: 420px;
+  height: 100%;
+  padding: 16px;
+  background: #fff;
+  box-sizing: border-box;
+  box-shadow: -4px 0 12px rgba(0, 0, 0, 0.12);
+
+    &__open-button {
+      margin-left: auto;
+    }
+  
+    &__header {
+      margin: 0;
+      font-weight: 500;
+    }
+  
+    &__header-divider {
+      margin: 12px 0 16px;
+    }
+  
+    &__close-button {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+    }
+  
+    &__column-list-container {
+      flex: 1;
+      overflow: auto;
+      padding-right: 4px;
+  
+      &::-webkit-scrollbar {
+        width: 6px;
+      }
+  
+      &::-webkit-scrollbar-thumb {
+        background: #cfcfcf;
+        border-radius: 3px;
+      }
+    }
+  
+    &__column-form {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+  
+    &__add-button {
+      margin-top: 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+  
+    &__add-icon {
+      font-size: 18px;
+    }
+  
+    &__restore-button {
+      margin-top: 12px;
+    }
+  
+    &__save-button {
+      margin-top: 16px;
+      align-self: flex-end;
+    }
+  }
+
+  .cdk-drag-preview {
+    box-sizing: border-box;
+    border-radius: 6px;
+    background: #fff;
+    border: 1px solid #ddd;
+    padding: 8px;
+  }
+  
+  .cdk-drag-placeholder {
+    opacity: 0;
+  }
+  
+  .cdk-drag-animating {
+    transition: transform 150ms ease;
+  }
+  
+  .cdk-drop-list-dragging
+  .table-column-editor:not(.cdk-drag-placeholder) {
+    transition: transform 150ms ease;
+  }

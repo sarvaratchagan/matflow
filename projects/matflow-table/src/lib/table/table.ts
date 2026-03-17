@@ -178,6 +178,8 @@ export class TableDirective implements OnInit, AfterContentInit, OnDestroy {
       shareReplay({ bufferSize: 1, refCount: true })
     );
 
+    this.tableSettingsSource.displayedTableColumns$ = this.displayedTableColumns$;
+
     this.displayedColumns$ = this.displayedTableColumns$.pipe(
       map(columns => columns.map(c => c.field)),
       tap(columns =>
@@ -185,6 +187,7 @@ export class TableDirective implements OnInit, AfterContentInit, OnDestroy {
       ),
       shareReplay({ bufferSize: 1, refCount: true })
     );
+
   }
 
   updateColumns(columns: TableColumn[] | null) {

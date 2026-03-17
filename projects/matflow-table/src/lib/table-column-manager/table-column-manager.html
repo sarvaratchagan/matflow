@@ -1,0 +1,93 @@
+<div class="table-column-editor" [formGroup]="tableColumnFormGroup">
+  <button
+    class="drag-handle table-column-editor__move-button"
+    [disableRipple]="true"
+    mat-icon-button
+    matTooltip="Move the column"
+    cdkDragHandle
+    type="button"
+  >
+    <mat-icon>drag_indicator</mat-icon>
+  </button>
+
+  <mat-form-field
+    *ngIf="
+      tableColumnFormGroup.controls.mode.value === 'columnSelector';
+      else labelEditor
+    "
+    class="table-column-editor__form-field"
+    appearance="outline"
+    subscriptSizing="dynamic"
+  >
+    <mat-select
+      placeholder="Column Name"
+      formControlName="tableColumn"
+      [compareWith]="compareTableColumns"
+      #columnSelector
+    >
+      <mat-option
+        *ngFor="let tableColumn of availableColumns$ | async"
+        [value]="tableColumn"
+      >
+        {{
+        tableColumn.label +
+        (tableColumn.alias ? ' (' + tableColumn.alias + ')' : '')
+        }}
+      </mat-option>
+    </mat-select>
+  </mat-form-field>
+  <ng-template #labelEditor>
+    <mat-form-field
+      class="table-column-editor__form-field"
+      appearance="outline"
+      appearance="outline"
+      subscriptSizing="dynamic"
+    >
+      <input
+        matInput
+        formControlName="alias"
+        [placeholder]="tableColumnFormGroup.controls.tableColumn.value?.label ?? ''"
+      />
+    </mat-form-field>
+  </ng-template>
+  <button
+    mat-icon-button
+    *ngIf="
+      tableColumnFormGroup.controls.mode.value === 'columnSelector';
+      else doneButton
+    "
+    [disableRipple]="true"
+    type="button"
+    class="table-column-editor__edit-button"
+    (click)="edit()"
+    [disabled]="
+      !tableColumnFormGroup.controls.tableColumn.value ||
+      tableColumnFormGroup.controls.tableColumn.value?.readonly
+    "
+  >
+    <mat-icon>edit</mat-icon>
+  </button>
+  <ng-template #doneButton>
+    <button
+      mat-icon-button
+      type="button"
+      [disableRipple]="true"
+      class="table-column-editor__edit-button"
+      (click)="undo()"
+      [disabled]="tableColumnFormGroup.controls.tableColumn.value?.readonly"
+    >
+      <mat-icon>undo</mat-icon>
+    </button>
+  </ng-template>
+
+  <button
+    mat-icon-button
+    type="button"
+    [disableRipple]="true"
+    class="table-column-editor__remove-button"
+    [disabled]="tableColumnFormGroup.controls.tableColumn.value?.readonly"
+    (click)="remove.emit(tableColumnFormGroup)"
+  >
+    <mat-icon>close</mat-icon>
+  </button>
+</div>
