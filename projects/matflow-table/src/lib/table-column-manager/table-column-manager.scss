@@ -1,0 +1,41 @@
+.table-column-editor {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 6px;
+
+  border-radius: 6px;
+  border: 1px solid #e5e5e5;
+  background: #fafafa;
+
+  transition: background 0.2s ease;
+
+  &:hover {
+    background: #f5f5f5;
+  }
+
+  &__form-field {
+    flex: 1;
+    min-width: 160px;
+  }
+
+  &__move-button {
+    width: 32px;
+    height: 32px;
+    cursor: grab;
+
+    &:active {
+      cursor: grabbing;
+    }
+  }
+
+  &__edit-button {
+    width: 32px;
+    height: 32px;
+  }
+
+  &__remove-button {
+    width: 32px;
+    height: 32px;
+  }
+}
