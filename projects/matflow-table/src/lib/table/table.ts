@@ -1,7 +1,7 @@
 import { AfterContentInit, Directive, Inject, Input, OnDestroy, OnInit } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { BehaviorSubject, combineLatest, Observable, ReplaySubject, Subject, take, takeUntil, tap } from 'rxjs';
-import { filter, map, shareReplay } from 'rxjs/operators';
+import { filter, map, shareReplay, switchMap } from 'rxjs/operators';
 
 import { TableColumnSettingsAdapter } from '../table-column/table-column-settings-adapter';
 import { TABLE_COLUMN_SETTINGS_ADAPTER} from '../table-column/table-column-settings.token';
@@ -111,6 +111,11 @@ export class TableDirective implements OnInit, AfterContentInit, OnDestroy {
 
     if (!this.tableSettingName) return;
 
+    this.tableSettingsSource.tableColumnSettings$ = this.tableColumnSettingsSubject.asObservable()?.pipe(
+      // TODO type casting problem
+      map(columnSettings => columnSettings as TableColumnSetting[])
+    );
+
     this.loadSettings();
     this.setupDisplayedColumns();
 
@@ -120,7 +125,6 @@ export class TableDirective implements OnInit, AfterContentInit, OnDestroy {
   }
 
   private loadSettings() {
-
     this.loadingSubject.next(true);
 
     this.columnAdapter
@@ -128,18 +132,28 @@ export class TableDirective implements OnInit, AfterContentInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: settings => {
-          this.tableColumnSettingsSubject.next(
-            settings?.map(column => ({
-              ...column,
-              displayed: true
-            }))
-          );
+  
+          const columns = (settings ?? []).map(column => ({
+            ...column,
+            displayed: true
+          }));
+  
+          this.tableColumnSettingsSubject.next(columns);
+  
           this.tableSettingsSource.settingLoadedSubject.next(true);
           this.loadingSubject.next(false);
         },
-
+  
         error: () => this.loadingSubject.next(false)
       });
+  
+    this.tableSettingsSource.tableColumnSettings$ =
+      this.tableSettingsSource.loaded$?.pipe(
+        filter(Boolean),
+        switchMap(() => this.tableColumnSettings$),
+        // TODO type casting problem
+        map(columns => columns as TableColumnSetting[])
+      );
   }
 
   private setupDisplayedColumns() {
