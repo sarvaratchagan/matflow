@@ -6,6 +6,8 @@ export * from './lib/table-column/column-meta';
 export * from './lib/table-column/table-column';
 export * from './lib/table-column/table-column-settings.token';
 export * from './lib/table-column/table-column-settings-adapter';
+export * from './lib/table-column-manager/table-column-manager';
+export * from './lib/table-columns-manager/table-columns-manager';
 
 export * from './lib/table-columns/table-columns.directive';
 
