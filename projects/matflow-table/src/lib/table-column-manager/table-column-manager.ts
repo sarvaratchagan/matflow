@@ -3,9 +3,9 @@ import {
   Component,
   ElementRef,
   EventEmitter,
-  Inject,
-  Input, OnInit,
-  Output
+  Host,
+  Input, OnInit, Optional,
+  Output, SkipSelf
 } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import {
@@ -13,14 +13,22 @@ import {
   ReplaySubject,
   combineLatest,
   map,
-  startWith, switchAll, EMPTY
+  startWith,
+  switchAll
 } from 'rxjs';
 import { TableColumn } from '../table-column/table-column';
-import { TABLE_SETTINGS_SOURCE } from '../table/table-settings-source.token';
-import { TableSettingsSource } from '../table/table-settings-source';
+import { MatflowTableDirective } from '../table/matflow-table';
 
+/**
+ * Mode of column form UI
+ * - columnSelector: selecting column
+ * - labelEditor: editing alias/label
+ */
 export type FormMode = 'columnSelector' | 'labelEditor';
 
+/**
+ * Strongly typed form structure for a column
+ */
 export type TableColumnFormGroupType = {
   tableColumn: FormControl<TableColumn | null>;
   alias: FormControl<string | null>;
@@ -30,8 +38,15 @@ export type TableColumnFormGroupType = {
   required: FormControl<boolean>;
 };
 
+/**
+ * Typed FormGroup wrapper
+ */
 export type TableColumnFormGroup = FormGroup<TableColumnFormGroupType>;
 
+/**
+ * Component responsible for managing a single column entry
+ * inside TableColumnsManager
+ */
 @Component({
   selector: 'matflow-table-column-manager',
   templateUrl: './table-column-manager.html',
@@ -41,34 +56,57 @@ export type TableColumnFormGroup = FormGroup<TableColumnFormGroupType>;
 })
 export class TableColumnManager implements OnInit {
 
+  /**
+   * Emits when user removes this column
+   */
   @Output()
   remove = new EventEmitter<FormGroup>();
 
+  /**
+   * Holds currently used columns (to avoid duplicates)
+   */
   private usedTableColumnsSubject = new ReplaySubject<TableColumn[]>(1);
   usedTableColumns$ = this.usedTableColumnsSubject.asObservable();
 
+  /**
+   * Holds current form group instance
+   */
   private tableColumnFormGroupSubject =
     new ReplaySubject<TableColumnFormGroup>(1);
 
   tableColumnFormGroup$ =
     this.tableColumnFormGroupSubject.asObservable();
 
+  /**
+   * Input: all currently used columns
+   */
   @Input()
   set usedTableColumns(value: TableColumn[]) {
     this.usedTableColumnsSubject.next(value);
   }
 
+  /**
+   * Internal reference to form group
+   */
   private _tableColumnFormGroup!: TableColumnFormGroup;
 
   get tableColumnFormGroup(): TableColumnFormGroup {
     return this._tableColumnFormGroup;
   }
 
+  /**
+   * Input: form group for this column row
+   *
+   * Also:
+   * - pushes into observable stream
+   * - auto-scrolls into view if empty (UX enhancement)
+   */
   @Input()
   set tableColumnFormGroup(value: TableColumnFormGroup) {
     this._tableColumnFormGroup = value;
     this.tableColumnFormGroupSubject.next(value);
 
+    // Auto-scroll when a new empty row is added
     if (!value.controls.tableColumn.value) {
       this.elementRef.nativeElement.scrollIntoView({
         behavior: 'smooth',
@@ -78,77 +116,112 @@ export class TableColumnManager implements OnInit {
     }
   }
 
-  readonly selectedTableColumn$: Observable<TableColumn | null> =
+  /**
+   * Currently selected column (reactive stream)
+   *
+   * Handles:
+   * - initial value
+   * - subsequent changes
+   */
+  readonly selectedTableColumn$: Observable<TableColumn | undefined> =
     this.tableColumnFormGroup$.pipe(
       map(fg => fg.controls.tableColumn),
       map(control =>
         control.valueChanges.pipe(
           startWith(control.value),
-          map(v => v ?? null)
+          map(v => v ?? undefined)
         )
       ),
-      // flatten inner observable
+      // flatten inner observable stream
       switchAll()
     );
 
-   availableColumns$!: Observable<TableColumn[]>;
+  /**
+   * Available columns for selection
+   * (filtered dynamically based on usage + selection)
+   */
+  availableColumns$!: Observable<TableColumn[]>;
 
   constructor(
-    @Inject(TABLE_SETTINGS_SOURCE)
-    private tableSettingsSource: TableSettingsSource,
-    private elementRef: ElementRef<HTMLElement>
+    private elementRef: ElementRef<HTMLElement>,
+
+    /**
+     * Parent table (SkipSelf ensures correct hierarchy lookup)
+     */
+    @Optional() @SkipSelf() private table?: MatflowTableDirective
   ) {}
 
+  /**
+   * Initialize available columns stream
+   */
   ngOnInit() {
-    this.availableColumns$ =
-      combineLatest([
-        this.tableSettingsSource.availableColumns$ ?? EMPTY,
+    if (this.table?.facade) {
+      this.availableColumns$ = combineLatest<[
+          TableColumn[] | undefined,
+          TableColumn | undefined,
+        TableColumn[]
+      ]>([
+        this.table.facade.availableColumns$,
         this.selectedTableColumn$,
         this.usedTableColumns$
       ]).pipe(
-        map(([availableColumns, selectedColumn, usedColumns]: [
-          TableColumn[], TableColumn | null, TableColumn[]
-        ]) => {
+        map(([availableColumns, selectedColumn, usedColumns]): TableColumn[] => {
 
-          const filteredColumns = availableColumns
-            ?.filter(col => col.queryable || col.computed)
-            ?.filter(col => !col.hidden)
-            ?.filter(col => {
-              if (selectedColumn?.field === col.field) {
-                return true;
-              }
+          if (!availableColumns) return [];
 
-              return !usedColumns?.some(
+          return availableColumns
+            // Allow only queryable or computed columns
+            .filter(col => col.queryable || col.computed)
+
+            // Exclude hidden columns
+            .filter(col => !col.hidden)
+
+            // Prevent duplicate selection
+            .filter(col => {
+              // Allow currently selected column
+              if (selectedColumn?.field === col.field) return true;
+
+              // Exclude already used columns
+              return !usedColumns.some(
                 used => used.field === col.field
               );
             })
-            ?.map(col => {
 
-              const usedColumn = usedColumns?.find(
+            // Preserve label overrides if already used
+            .map(col => {
+              const usedColumn = usedColumns.find(
                 used => used.field === col.field
               );
 
-              if (usedColumn) {
-                col.label = usedColumn.label;
-              }
-
-              return col;
+              return {
+                ...col,
+                label: usedColumn?.label ?? col.label
+              };
             });
-
-          return filteredColumns ?? [];
         })
       );
+    }
   }
 
+  /**
+   * Switch UI to label editing mode
+   */
   edit() {
     this.tableColumnFormGroup.controls.mode.setValue('labelEditor');
   }
 
+  /**
+   * Revert alias changes and switch back to selector mode
+   */
   undo() {
     this.tableColumnFormGroup.controls.mode.setValue('columnSelector');
     this.tableColumnFormGroup.controls.alias.setValue(null);
   }
 
+  /**
+   * Comparator for dropdown selection
+   * (prevents object reference issues)
+   */
   compareTableColumns(
     column1: TableColumn,
     column2: TableColumn

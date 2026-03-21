@@ -2,8 +2,8 @@ import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatTableModule } from '@angular/material/table';
 import { UserTableSettingsAdapter} from './user-table-settings-adapter';
-import { MatflowTableModule, TABLE_COLUMN_SETTINGS_ADAPTER, TableDirective, TableColumn } from 'matflow-table';
-import { ReplaySubject, combineLatest, Observable } from 'rxjs';
+import { MatflowTableModule, TABLE_COLUMN_SETTINGS_ADAPTER, MatflowTableDirective, TableColumn } from 'matflow-table';
+import {ReplaySubject, combineLatest, Observable, tap} from 'rxjs';
 import { map, filter } from 'rxjs/operators';
 
 export interface User {
@@ -36,8 +36,8 @@ export interface User {
 })
 export class UsersTableComponent implements OnInit, AfterViewInit {
 
-  @ViewChild(TableDirective)
-  usersTable!: TableDirective;
+  @ViewChild(MatflowTableDirective)
+  usersTable!: MatflowTableDirective;
 
   availableColumnsSubject = new ReplaySubject<TableColumn[]>(1);
   availableColumns$ = this.availableColumnsSubject.asObservable();
@@ -54,13 +54,15 @@ export class UsersTableComponent implements OnInit, AfterViewInit {
 
   ngAfterViewInit() {
     const displayedColumns$: Observable<(string | undefined)[]> = this.usersTable.displayedColumns$?.pipe(
-      filter(columns => !!columns)
+      filter(columns => !!columns),
+      tap(cols => console.log(cols))
     );
     this.displayedColumns$ = combineLatest([
       this.availableColumns$,
       displayedColumns$
     ])?.pipe(
       map(([availableColumns, displayedColumns]: [TableColumn[], (string | undefined)[]]) => {
+        debugger;
         return (
           availableColumns
             ?.filter(column =>

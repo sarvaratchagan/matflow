@@ -1,7 +1,7 @@
 import { BooleanInput, coerceBooleanProperty } from '@angular/cdk/coercion';
 import {
   ContentChild,
-  Directive,
+  Directive, Host,
   Inject,
   Input,
   OnDestroy,
@@ -16,82 +16,65 @@ import {
   MatTable
 } from '@angular/material/table';
 
-import { Observable, map, switchMap, filter, of } from 'rxjs';
+import { Observable, map, of } from 'rxjs';
 import { shareReplay } from 'rxjs/operators';
-import { TABLE_SETTINGS_SOURCE } from '../table/table-settings-source.token';
-import { TableSettingsSource} from '../table/table-settings-source';
 import { ColumnMeta } from './column-meta';
-import { TableColumnSetting } from '../table/table-column-setting';
+import { MatflowTableDirective } from '../table/matflow-table';
 
+/**
+ * Runtime representation of a table column.
+ *
+ * Combines:
+ * - Structural info (field, label)
+ * - UI capabilities (sortable, filterable)
+ * - Behavioral flags (computed, required, hidden)
+ */
 export type TableColumn = {
 
-  /**
-   * Name of the field in the data source
-   */
+  /** Field name in the data source */
   field: string;
 
-  /**
-   * Caption for the column header
-   */
+  /** Default display label */
   label?: string;
 
-  /**
-   * User-defined alias for the column
-   */
+  /** User-defined alias (overrides label) */
   alias?: string;
 
-  /**
-   * Column rendering type
-   */
+  /** Rendering type of column */
   type?: TableColumnType;
 
-  /**
-   * Column width in UI
-   */
+  /** Column width (CSS value) */
   width?: string;
 
-  /**
-   * Read-only column
-   */
+  /** Indicates read-only column */
   readonly?: boolean;
 
-  /**
-   * Indicates if the column can be queried from the backend
-   */
+  /** Column can be queried from backend */
   queryable?: boolean;
 
-  /**
-   * Column supports grouping
-   */
+  /** Column supports grouping */
   groupable?: boolean;
 
-  /**
-   * UI-only column (not part of dataset)
-   */
+  /** Column is computed (not part of raw dataset) */
   computed?: boolean;
 
-  /**
-   * Column required for table operation
-   */
+  /** Column is mandatory (cannot be removed) */
   required?: boolean;
 
-  /**
-   * Column hidden in UI
-   */
+  /** Column is hidden by default */
   hidden?: boolean;
 
-  /**
-   * Sorting capability
-   */
+  /** Supports sorting */
   sortable?: boolean;
 
-  /**
-   * Filtering capability
-   */
+  /** Supports filtering */
   filterable?: boolean;
 
 };
 
+/**
+ * Supported column rendering types.
+ */
 export type TableColumnType =
   | 'text'
   | 'number'
@@ -100,6 +83,15 @@ export type TableColumnType =
   | 'date'
   | 'custom';
 
+/**
+ * Directive that bridges Angular Material column definitions
+ * with Matflow table system.
+ *
+ * Responsibilities:
+ * - Registers column with Angular Material (MatColumnDef)
+ * - Provides metadata for Matflow framework
+ * - Resolves alias/display name reactively
+ */
 @Directive({
   selector: '[matflowTableColumn]',
   exportAs: 'matflowTableColumn',
@@ -108,19 +100,19 @@ export type TableColumnType =
 export class TableColumnDirective <T>  implements OnInit, OnDestroy {
 
   /**
-   * Column label
+   * Column label (default display name)
    */
   @Input('matflowTableColumn')
   label?: string;
 
   /**
-   * Column name (MatColumnDef name)
+   * Column name (maps to MatColumnDef.name)
    */
   @Input()
   name?: string;
 
   /**
-   * Column visible only in UI (not editable)
+   * Indicates column is computed (UI-only)
    */
   private _computed = false;
 
@@ -133,7 +125,7 @@ export class TableColumnDirective <T>  implements OnInit, OnDestroy {
   }
 
   /**
-   * Column hidden state
+   * Indicates column is hidden
    */
   private _hidden = false;
 
@@ -146,7 +138,7 @@ export class TableColumnDirective <T>  implements OnInit, OnDestroy {
   }
 
   /**
-   * Required column
+   * Indicates column is required (cannot be removed)
    */
   private _required = false;
 
@@ -159,7 +151,7 @@ export class TableColumnDirective <T>  implements OnInit, OnDestroy {
   }
 
   /**
-   * Column supports grouping
+   * Indicates column supports grouping
    */
   private _groupable = false;
 
@@ -172,7 +164,9 @@ export class TableColumnDirective <T>  implements OnInit, OnDestroy {
   }
 
   /**
-   * Column queryable from backend
+   * Indicates column is queryable
+   *
+   * Default: true
    */
   private _queryable = true;
 
@@ -185,71 +179,90 @@ export class TableColumnDirective <T>  implements OnInit, OnDestroy {
   }
 
   /**
-   * Angular Material cell templates
+   * Angular Material cell template reference
    */
   @ContentChild(MatCellDef, { static: true })
   cellDef!: MatCellDef;
 
+  /**
+   * Angular Material header template reference
+   */
   @ContentChild(MatHeaderCellDef, { static: true })
   headerCellDef!: MatHeaderCellDef;
 
   /**
-   * Reactive alias from user settings
+   * Reactive stream of alias (from user settings)
    */
   alias$!: Observable<string | undefined>;
 
   /**
-   * Final display name
+   * Final display name (alias > label > name)
    */
   displayName$!: Observable<string>;
 
   constructor(
+    /** Angular Material column definition */
     @Optional() private matColumnDef: MatColumnDef,
+
+    /** Parent Material table */
     @Optional() private matTable: MatTable<T>,
+
+    /** Parent Matflow table directive */
     @Optional()
-    @Inject(TABLE_SETTINGS_SOURCE)
-    private tableSettingsSource?: TableSettingsSource
+    @Host() private matflowTable: MatflowTableDirective
   ) {}
 
+  /**
+   * Lifecycle hook: initializes column registration and reactive streams
+   */
   ngOnInit(): void {
 
+    // Assign column name to MatColumnDef
     if (this.matColumnDef && this.name) {
       this.matColumnDef.name = this.name;
     }
 
+    // Bind templates to MatColumnDef
     if (this.matColumnDef) {
       this.matColumnDef.cell = this.cellDef;
       this.matColumnDef.headerCell = this.headerCellDef;
     }
 
-    // if (this.matTable && this.matColumnDef) {
-    //   this.matTable.addColumnDef(this.matColumnDef);
-    // }
-
     this.init();
   }
 
+  /**
+   * Initializes reactive alias + display name resolution
+   */
   private init(): void {
 
-    if (!this.tableSettingsSource) {
+    // If not inside matflowTable → fallback behavior
+    if (!this.matflowTable) {
       this.alias$ = of(undefined);
       this.displayName$ = of(this.label || this.matColumnDef?.name || '');
       return;
     }
 
-    this.alias$ = this.tableSettingsSource.loaded$?.pipe(
-      filter(loaded => loaded !== undefined),
-      // TODO type casting problem
-      switchMap(() => this.tableSettingsSource!.tableColumnSettings$ ?? of([])),
-      map((settings: TableColumnSetting[]) => {
-        const column = settings?.find(
-          s => s.name === this.matColumnDef?.name
+    /**
+     * Resolve alias from persisted settings
+     */
+    this.alias$ = this.matflowTable?.facade?.tableColumnSettings$?.pipe(
+      map(columns => {
+        if (!columns) return undefined;
+
+        const col = columns.find(
+          c => c.name === this.matColumnDef?.name
         );
-        return column?.alias;
+
+        return col?.alias;
       }),
       shareReplay(1)
-    ) ?? of(undefined);
+    );
 
+    /**
+     * Resolve final display name:
+     * priority → alias > label > column name
+     */
     this.displayName$ = this.alias$.pipe(
       map(alias =>
         alias ||
@@ -262,7 +275,9 @@ export class TableColumnDirective <T>  implements OnInit, OnDestroy {
   }
 
   /**
-   * Column metadata for registry / plugins
+   * Exposes column metadata for:
+   * - Registry systems
+   * - Plugins (filtering, grouping, etc.)
    */
   get meta(): ColumnMeta {
 
@@ -271,7 +286,7 @@ export class TableColumnDirective <T>  implements OnInit, OnDestroy {
       label: this.label,
 
       hidden: this.hidden,
-      viewonly: this.computed,
+      computed: this.computed,
       required: this.required,
 
       queryable: this.queryable,
@@ -279,7 +294,11 @@ export class TableColumnDirective <T>  implements OnInit, OnDestroy {
     };
   }
 
+  /**
+   * Cleanup hook
+   */
   ngOnDestroy(): void {
+    // Optional cleanup if dynamic column removal is needed
     // if (this.matTable && this.matColumnDef) {
     //   this.matTable.removeColumnDef(this.matColumnDef);
     // }
