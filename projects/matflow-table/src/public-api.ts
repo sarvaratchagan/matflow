@@ -4,6 +4,8 @@
 
 export * from './lib/table-column/column-meta';
 export * from './lib/table-column/table-column';
+export * from './lib/column-reorder/column-reorder';
+export * from './lib/column-reorder-list/column-reorder-list';
 export * from './lib/core/adapter/table-column-settings.token';
 export * from './lib/core/adapter/table-column-settings-adapter';
 export * from './lib/table-column-manager/table-column-manager';

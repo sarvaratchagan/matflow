@@ -121,7 +121,10 @@ export class MatflowTableFacade implements OnDestroy {
         takeUntil(this.destroy$)
       )
       .subscribe(settings => {
-        this.store.setTableSettings(settings);
+        const normalized = settings?.length
+          ? this.normalizeOrder(settings)
+          : settings;
+        this.store.setTableSettings(normalized);
         this.store.setLoading(false);
       });
   }
@@ -218,20 +221,62 @@ export class MatflowTableFacade implements OnDestroy {
     prev: TableColumnSetting[] | null,
     next: TableColumnSetting[] | null
   ) {
-
-    if (!prev || !next) {
-      return false;
-    }
-
-    if (prev.length !== next.length) {
-      return false;
-    }
+    if (!prev || !next) return false;
+    if (prev.length !== next.length) return false;
 
     return prev.every((val, i) =>
       val.name === next[i].name &&
       val.order === next[i].order &&
       val.alias === next[i].alias
     );
+  }
+
+  /**
+   * Reorders columns based on drag & drop indices.
+   *
+   * Flow:
+   * 1. Take current persisted settings (single snapshot)
+   * 2. Move item from previousIndex → currentIndex
+   * 3. Normalize order to maintain consistency
+   * 4. Trigger update + persistence
+   */
+  reorderColumns(previousIndex: number, currentIndex: number) {
+    this.tableColumnSettings$
+      .pipe(take(1))
+      .subscribe(settings => {
+        if (!settings || settings.length === 0) return;
+
+        const updated = [...settings];
+
+        // Move dragged column
+        const [moved] = updated.splice(previousIndex, 1);
+        updated.splice(currentIndex, 0, moved);
+
+        const normalized = this.normalizeOrder(updated);
+
+        this.updateColumns(normalized);
+      });
+  }
+
+  /**
+   * Returns a one-time snapshot of current column settings.
+   * Useful for external integrations or debugging.
+   */
+  getCurrentSettings(): Observable<TableColumnSetting[] | null> {
+    return this.tableColumnSettings$.pipe(take(1));
+  }
+
+  /**
+   * Ensures column order is sequential and stable.
+   *
+   * Example:
+   * [5, 2, 9] → [0, 1, 2]
+   */
+  private normalizeOrder(settings: TableColumnSetting[]): TableColumnSetting[] {
+    return settings.map((s, index) => ({
+      ...s,
+      order: index
+    }));
   }
 
   /**
