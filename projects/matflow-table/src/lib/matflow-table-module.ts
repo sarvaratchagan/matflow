@@ -16,6 +16,8 @@ import { MatDividerModule } from '@angular/material/divider';
 import { TableColumnDirective } from './table-column/table-column';
 import { MatflowTableDirective } from './table/matflow-table';
 import { TableColumnsDirective } from './table-columns/table-columns.directive';
+import { ColumnReorderDirective } from './column-reorder/column-reorder';
+import { ColumnReorderListDirective } from './column-reorder-list/column-reorder-list';
 import { TableColumnManager } from './table-column-manager/table-column-manager';
 import { TableColumnsManager } from './table-columns-manager/table-columns-manager';
 
@@ -24,6 +26,8 @@ import { TableColumnsManager } from './table-columns-manager/table-columns-manag
     TableColumnDirective,
     TableColumnsDirective,
     MatflowTableDirective,
+    ColumnReorderDirective,
+    ColumnReorderListDirective,
     TableColumnManager,
     TableColumnsManager
   ],
@@ -46,6 +50,8 @@ import { TableColumnsManager } from './table-columns-manager/table-columns-manag
     TableColumnDirective,
     TableColumnsDirective,
     MatflowTableDirective,
+    ColumnReorderDirective,
+    ColumnReorderListDirective,
     TableColumnManager,
     TableColumnsManager
   ]

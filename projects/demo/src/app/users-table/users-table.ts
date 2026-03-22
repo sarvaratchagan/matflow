@@ -1,6 +1,7 @@
 import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatTableModule } from '@angular/material/table';
+import { DragDropModule } from '@angular/cdk/drag-drop';
 import { UserTableSettingsAdapter} from './user-table-settings-adapter';
 import { MatflowTableModule, TABLE_COLUMN_SETTINGS_ADAPTER, MatflowTableDirective, TableColumn } from 'matflow-table';
 import {ReplaySubject, combineLatest, Observable, tap} from 'rxjs';
@@ -30,7 +31,8 @@ export interface User {
   imports: [
     CommonModule,
     MatflowTableModule,
-    MatTableModule
+    MatTableModule,
+    DragDropModule
   ],
   standalone: true
 })
@@ -49,7 +51,7 @@ export class UsersTableComponent implements OnInit, AfterViewInit {
   data: User[] = [];
 
   ngOnInit() {
-    this.data = this.generateUsers(10000);
+    this.data = this.generateUsers(1000);
   }
 
   ngAfterViewInit() {

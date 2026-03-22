@@ -17,16 +17,101 @@
     th {
       font-weight: 600;
       color: $primary;
-  }
+    }
 
     td {
       padding: 12px;
-  }
+    }
 
     tr:hover {
       background: rgba($primary, 0.05);
+    }
+
+    /* =========================
+ * DRAG BASE
+ * ========================= */
+    th[cdkDrag] {
+      cursor: grab;
+      user-select: none;
+      transition: background 0.2s ease, transform 0.15s ease;
+    }
+
+    th[cdkDrag]:active {
+      cursor: grabbing;
+      background: rgba($primary, 0.08);
+    }
+
+    th[cdkDrag]:hover {
+      background: rgba($primary, 0.04);
+      transform: translateY(-1px);
+    }
+
+    /* =========================
+     * DROP LIST (HEADER ROW)
+     * ========================= */
+    .cdk-drop-list {
+      display: flex; /* REQUIRED for horizontal drag */
+      align-items: center;
+    }
+
+    .cdk-drop-list-dragging {
+      background: rgba($primary, 0.03);
+    }
+
+    /* =========================
+     * DRAG PREVIEW (FLOATING)
+     * ========================= */
+    .cdk-drag-preview {
+      box-sizing: border-box;
+      border-radius: 8px;
+      background: #fff;
+      padding: 8px 16px;
+      font-weight: 500;
+      color: #333;
+
+      box-shadow:
+        0 8px 16px rgba(0, 0, 0, 0.15),
+        0 2px 6px rgba(0, 0, 0, 0.1);
+
+      transform: scale(1.05);
+      opacity: 0.95;
+    }
+
+    /* =========================
+     * PLACEHOLDER
+     * ========================= */
+    .cdk-drag-placeholder {
+      opacity: 0; /* no flicker */
+    }
+
+    /* =========================
+     * DRAGGING ELEMENT
+     * ========================= */
+    .cdk-drag-dragging {
+      opacity: 0.6;
+    }
+
+    /* =========================
+     * SMOOTH ANIMATION
+     * ========================= */
+    .cdk-drop-list-dragging th[cdkDrag] {
+      transition: transform 250ms cubic-bezier(0.2, 0, 0, 1);
+    }
+
+    /* =========================
+     * DRAG HANDLE
+     * ========================= */
+    [cdkDragHandle] {
+      cursor: grab;
+      margin-left: 8px;
+      font-size: 14px;
+      opacity: 0.6;
+      transition: opacity 0.2s ease;
+    }
+
+    th:hover [cdkDragHandle] {
+      opacity: 1;
+    }
+
   }
-
-}
-
 }

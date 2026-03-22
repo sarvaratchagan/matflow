@@ -112,4 +112,8 @@ export class MatflowTableDirective implements OnInit {
   registerColumns(columns: TableColumn[]) {
     this.facade.setAvailableColumns(columns);
   }
+
+  reorderColumns(previousIndex: number, currentIndex: number) {
+    this.facade.reorderColumns(previousIndex, currentIndex);
+  }
 }
