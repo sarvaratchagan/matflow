@@ -10,26 +10,26 @@ export class UserTableSettingsAdapter
 
   load(
     tableName: string
-  ): Observable<TableColumnSetting[] | undefined> {
+  ): Observable<TableColumnSetting[] | null> {
 
     const key = `${this.prefix}-${tableName}`;
     const raw = localStorage.getItem(key);
 
     if (!raw) {
-      return of(undefined);
+      return of(null);
     }
 
     try {
       return of(JSON.parse(raw) as TableColumnSetting[]);
     } catch {
-      return of(undefined);
+      return of(null);
     }
   }
 
   save(
     tableName: string,
-    columns: TableColumnSetting[]
-  ): Observable<TableColumnSetting[]> {
+    columns: TableColumnSetting[] | null
+  ): Observable<TableColumnSetting[] | null> {
 
     const key = `${this.prefix}-${tableName}`;
 

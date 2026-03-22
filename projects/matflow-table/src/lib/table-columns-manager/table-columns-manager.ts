@@ -1,10 +1,10 @@
 import {
   ChangeDetectionStrategy,
   Component,
-  EventEmitter,
+  EventEmitter, Host,
   Inject,
   OnDestroy,
-  OnInit,
+  OnInit, Optional,
   Output,
   TemplateRef,
   ViewContainerRef
@@ -20,13 +20,13 @@ import {
 import { CdkDragDrop } from '@angular/cdk/drag-drop';
 import { TemplatePortal } from '@angular/cdk/portal';
 
-import { EMPTY, Observable, Subject } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
 import { filter, map, shareReplay, startWith, take, takeUntil } from 'rxjs/operators';
 
 import { TableColumnFormGroup, FormMode, TableColumnFormGroupType } from '../table-column-manager/table-column-manager';
 import { TableColumn } from '../table-column/table-column';
-import { TABLE_SETTINGS_SOURCE } from '../table/table-settings-source.token';
-import { TableSettingsSource } from '../table/table-settings-source';
+import { MatflowTableDirective } from '../table/matflow-table';
+import { TableColumnSetting } from '../table/table-column-setting';
 
 @Component({
   selector: 'matflow-table-columns-manager',
@@ -53,10 +53,9 @@ export class TableColumnsManager implements OnInit, OnDestroy {
   usedTableColumns$!: Observable<TableColumn[]>;
 
   constructor(
-    @Inject(TABLE_SETTINGS_SOURCE)
-    private tableSettingsSource: TableSettingsSource,
     private overlay: Overlay,
-    private viewContainerRef: ViewContainerRef
+    private viewContainerRef: ViewContainerRef,
+    @Optional() @Host() private table?: MatflowTableDirective
   ) {}
 
   ngOnInit() {
@@ -65,8 +64,8 @@ export class TableColumnsManager implements OnInit, OnDestroy {
       map((columns) => {
         return (
           (columns ?? [])
-          ?.map(c => c.tableColumn)
-          ?.filter((c): c is TableColumn => !!c)
+            ?.map(c => c.tableColumn)
+            ?.filter((c): c is TableColumn => !!c)
         )
       }),
       shareReplay({ bufferSize: 1, refCount: true })
@@ -149,16 +148,16 @@ export class TableColumnsManager implements OnInit, OnDestroy {
         nonNullable: true
       }),
       alias: new FormControl<string | null>(null),
-      mode: new FormControl<FormMode>('columnSelector', { 
+      mode: new FormControl<FormMode>('columnSelector', {
         nonNullable: true
       }),
-      viewonly: new FormControl(false, { 
+      viewonly: new FormControl(false, {
         nonNullable: true
       }),
-      groupable: new FormControl(false, { 
+      groupable: new FormControl(false, {
         nonNullable: true
       }),
-      required: new FormControl(false, { 
+      required: new FormControl(false, {
         nonNullable: true
       })
     });
@@ -168,23 +167,30 @@ export class TableColumnsManager implements OnInit, OnDestroy {
 
   restore(): void {
 
-    this.displayedColumnsChanged.emit(
-      this.tableSettingsSource.defaultColumns
-    );
+    this.table?.facade.defaultColumns$
+      .pipe(take(1))
+      .subscribe(defaultColumns => {
+        this.displayedColumnsChanged.emit(defaultColumns);
+      });
 
-    const defaultColumns$ = (
-      this.tableSettingsSource.defaultTableColumns$ ?? EMPTY
-    );
 
-    defaultColumns$
+    this.table?.facade.defaultTableColumns$
       .pipe(
-        filter((defaultColumns: TableColumn[]) => !!defaultColumns),
+        filter((defaultColumns): defaultColumns is TableColumn[] => !!defaultColumns),
         take(1)
       )
-      .subscribe((defaultColumns: TableColumn[]) => {
+      .subscribe((defaultColumns) => {
 
-        this.tableSettingsSource
-          .updateUserTableColumns(defaultColumns);
+        if (this.table?.facade) {
+          const tableColumnSettings: TableColumnSetting[] =
+            defaultColumns.map((tableColumn, i) => ({
+              order: i,
+              name: tableColumn.field,
+              alias: tableColumn.alias
+            }));
+
+          this.table.facade.updateColumns(tableColumnSettings);
+        }
 
         this.close();
       });
@@ -202,12 +208,21 @@ export class TableColumnsManager implements OnInit, OnDestroy {
         }
         const column = { ...col.tableColumn };
         column.alias = col.alias ?? undefined;
-      
+
         return column;
       })
       .filter((c): c is TableColumn => !!c);
-    this.tableSettingsSource
-      .updateUserTableColumns(userColumns);
+
+    if (this.table?.facade) {
+      const tableColumnSettings: TableColumnSetting[] = userColumns.map(
+        (tableColumn, i) => ({
+          order: i,
+          name: tableColumn.field,
+          alias: tableColumn.alias
+        })
+      );
+      this.table?.facade.updateColumns(tableColumnSettings);
+    }
 
     this.close();
   }
@@ -218,7 +233,7 @@ export class TableColumnsManager implements OnInit, OnDestroy {
 
     formArray.clear();
 
-    this.tableSettingsSource.displayedTableColumns$
+    this.table?.facade?.displayedTableColumns$
       ?.pipe(take(1))
       .subscribe(tableColumns => {
 

@@ -1,9 +1,10 @@
-<matflow-table-columns-manager></matflow-table-columns-manager>
 <ng-container
   #userTable="matflowTable"
-  tableSettingName="users-table"
   [defaultColumns]="defaultColumns"
-  matflowTable>
+  matflowTable="users-table">
+
+  <matflow-table-columns-manager></matflow-table-columns-manager>
+
   <table
     mat-table
     [dataSource]="data">

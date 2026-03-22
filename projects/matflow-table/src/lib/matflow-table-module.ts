@@ -14,9 +14,8 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatDividerModule } from '@angular/material/divider';
 
 import { TableColumnDirective } from './table-column/table-column';
-import { MatflowTableSettings, TableDirective } from './table/table';
+import { MatflowTableDirective } from './table/matflow-table';
 import { TableColumnsDirective } from './table-columns/table-columns.directive';
-import { TABLE_SETTINGS_SOURCE } from './table/table-settings-source.token';
 import { TableColumnManager } from './table-column-manager/table-column-manager';
 import { TableColumnsManager } from './table-columns-manager/table-columns-manager';
 
@@ -24,7 +23,7 @@ import { TableColumnsManager } from './table-columns-manager/table-columns-manag
   declarations: [
     TableColumnDirective,
     TableColumnsDirective,
-    TableDirective,
+    MatflowTableDirective,
     TableColumnManager,
     TableColumnsManager
   ],
@@ -46,15 +45,9 @@ import { TableColumnsManager } from './table-columns-manager/table-columns-manag
   exports: [
     TableColumnDirective,
     TableColumnsDirective,
-    TableDirective,
+    MatflowTableDirective,
     TableColumnManager,
     TableColumnsManager
-  ],
-  providers: [
-    {
-      provide: TABLE_SETTINGS_SOURCE,
-      useClass: MatflowTableSettings
-    }
   ]
 })
 export class MatflowTableModule {}
