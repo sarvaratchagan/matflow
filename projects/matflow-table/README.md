@@ -1,64 +1,401 @@
-# MatflowTable
+# Matflow Table
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.2.0.
+![Angular](https://img.shields.io/badge/Angular-v21-red)
+![Build](https://img.shields.io/badge/build-passing-brightgreen)
+![License](https://img.shields.io/badge/license-MIT-blue)
 
-## Code scaffolding
+A highly extensible, declarative, and reactive table abstraction built on top of Angular Material.
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+# ✨ Why Matflow Table?
 
-```bash
-ng generate component component-name
-```
+Matflow Table is designed to solve common problems in enterprise Angular apps:
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+- ❌ Boilerplate-heavy table setup
+- ❌ Tight coupling between UI & state
+- ❌ Hard-to-maintain column logic
+- ❌ Poor extensibility
 
-```bash
-ng generate --help
-```
+✅ **Solution:** A declarative, adapter-driven, reactive architecture.
 
-## Building
+---
 
-To build the library, run:
+# 🚀 Features
 
-```bash
-ng build matflow-table
-```
+- 🧱 Declarative column definitions
+- 🔌 Pluggable persistence (local / API / GraphQL)
+- 🔄 Fully reactive (RxJS-powered)
+- 🧩 Adapter-based extensibility
+- 📊 Dynamic columns & visibility control
+- 📂 Column persistence (save/load)
+- 🧠 directive auto-wiring
+- 🎨 Custom templates support
 
-This command will compile your project, and the build artifacts will be placed in the `dist/` directory.
+---
 
-### Publishing the Library
+# ⚡ Quick Start
 
-Once the project is built, you can publish your library by following these steps:
-
-1. Navigate to the `dist` directory:
-
-   ```bash
-   cd dist/matflow-table
-   ```
-
-2. Run the `npm publish` command to publish your library to the npm registry:
-   ```bash
-   npm publish
-   ```
-
-## Running unit tests
-
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
+## Install
 
 ```bash
-ng test
+npm install @matflow/table
 ```
 
-## Running end-to-end tests
+## Import Module
 
-For end-to-end (e2e) testing, run:
+```ts
+import { MatflowTableModule } from 'matflow-table';
+
+@NgModule({
+  imports: [MatflowTableModule]
+})
+export class AppModule {}
+```
+
+---
+
+## 1. Basic table
+
+```html
+<ng-container
+    #userTable="matflowTable"
+    [defaultColumns]="defaultColumns"
+    matflowTable="users-table">
+    <table
+        mat-table
+        [dataSource]="data">
+        <ng-container
+                matflowTableColumns
+                (matflowTableColumnsChange)="availableColumnsSubject.next($event)">
+            <ng-container
+                    matColumnDef="id"
+                    matflowTableColumn="ID"
+                    #idColumn="matflowTableColumn"
+                    name="id"
+                    queryable
+                    required>
+
+                <th mat-header-cell *matHeaderCellDef>
+                    {{idColumn?.displayName$ | async}}
+                </th>
+                <td mat-cell *matCellDef="let row">
+                    {{ row.id }}
+                </td>
+
+            </ng-container>
+            
+            <ng-container
+                    matColumnDef="name"
+                    matflowTableColumn="Name"
+                    #nameColumn="matflowTableColumn"
+                    name="name"
+                    queryable
+                    groupable>
+                <th mat-header-cell *matHeaderCellDef>
+                    {{nameColumn?.displayName$ | async}}
+                </th>
+                <td mat-cell *matCellDef="let row">
+                    {{ row.name }}
+                </td>
+            </ng-container>
+
+        </ng-container>
+
+        <tr mat-header-row
+            *matHeaderRowDef="(userTable?.displayedColumns$ | async); sticky: true"></tr>
+        <tr mat-row *matRowDef="let row; columns: (userTable?.displayedColumns$ | async)"></tr>
+
+    </table>
+</ng-container>
+```
+```typescript
+
+import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { MatTableModule } from '@angular/material/table';
+import { DragDropModule } from '@angular/cdk/drag-drop';
+import { UserTableSettingsAdapter} from './user-table-settings-adapter';
+import { MatflowTableModule, TABLE_COLUMN_SETTINGS_ADAPTER, MatflowTableDirective, TableColumn } from 'matflow-table';
+import { ReplaySubject, combineLatest, Observable, tap } from 'rxjs';
+import { map, filter } from 'rxjs/operators';
+
+export interface User {
+  id: number;
+  name: string;
+  // extend based on your requirements
+}
+
+@Component({
+  selector: 'app-users-table',
+  templateUrl: './users-table.html',
+  styleUrl: './users-table.scss',
+  providers: [
+    {
+      provide: TABLE_COLUMN_SETTINGS_ADAPTER,
+      useClass: UserTableSettingsAdapter
+    }
+  ],
+  imports: [
+    CommonModule,
+    MatflowTableModule,
+    MatTableModule,
+    DragDropModule
+  ],
+  standalone: true
+})
+export class UsersTableComponent implements OnInit, AfterViewInit {
+
+  @ViewChild(MatflowTableDirective)
+  usersTable!: MatflowTableDirective;
+
+  availableColumnsSubject = new ReplaySubject<TableColumn[]>(1);
+  availableColumns$ = this.availableColumnsSubject.asObservable();
+
+  displayedColumns$!: Observable<string[]>;
+
+  defaultColumns = ['id', 'name'];
+
+  data: User[] = [];
+
+  ngOnInit() {
+    this.data = this.generateUsers(1000);
+  }
+
+  ngAfterViewInit() {
+    const displayedColumns$: Observable<(string | undefined)[]> = this.usersTable.displayedColumns$?.pipe(
+      filter(columns => !!columns),
+    );
+    this.displayedColumns$ = combineLatest([
+      this.availableColumns$,
+      displayedColumns$
+    ])?.pipe(
+      map(([availableColumns, displayedColumns]: [TableColumn[], (string | undefined)[]]) => {
+        return (
+          availableColumns
+            ?.filter(column =>
+              (displayedColumns || this.defaultColumns)
+                ?.includes(column?.field)
+            )
+            ?.map(col => col.field) ?? []
+        )
+      })
+    );
+  }
+
+  generateUsers(count: number): User[] {
+    return Array.from({length: count}).map((_, i) => ({
+      id: i + 1,
+      name: `User ${i + 1}`,
+    }));
+  }
+}
+```
+
+---
+
+## 2. Adapter Layer (Extensibility Core)
+
+```ts
+export abstract class TableColumnSettingsAdapter {
+  abstract load(): Observable<ColumnConfig[]>;
+  abstract save(config: ColumnConfig[]): Observable<void>;
+}
+```
+
+```typescript
+import { Injectable } from '@angular/core';
+import { TableColumnSettingsAdapter, TableColumnSetting } from 'matflow-table';
+import { Observable, of } from 'rxjs';
+
+@Injectable()
+export class UserTableSettingsAdapter
+    implements TableColumnSettingsAdapter {
+
+    private prefix = 'matflow-table-settings';
+
+    load(
+        tableName: string
+    ): Observable<TableColumnSetting[] | null> {
+
+        const key = `${this.prefix}-${tableName}`;
+        const raw = localStorage.getItem(key);
+
+        if (!raw) {
+            return of(null);
+        }
+
+        try {
+            return of(JSON.parse(raw) as TableColumnSetting[]);
+        } catch {
+            return of(null);
+        }
+    }
+
+    save(
+        tableName: string,
+        columns: TableColumnSetting[] | null
+    ): Observable<TableColumnSetting[] | null> {
+
+        const key = `${this.prefix}-${tableName}`;
+
+        localStorage.setItem(
+            key,
+            JSON.stringify(columns)
+        );
+
+        return of(columns);
+    }
+}
+
+```
+
+👉 Plug your own implementation:
+- LocalStorage
+- REST API
+- GraphQL
+
+---
+
+## 3. Column re-ordering
+
+```html
+<ng-container
+        #userTable="matflowTable"
+        [defaultColumns]="defaultColumns"
+        matflowColumnReorder
+        matflowTable="users-table">
+    
+    <table
+            mat-table
+            [dataSource]="data"
+            cdkDropList
+            [cdkDropListData]="userTable.displayedTableColumns$ | async"
+            cdkDropListOrientation="horizontal"
+            matflowColumnReorderList>
+
+        <ng-container
+                matflowTableColumns
+                (matflowTableColumnsChange)="availableColumnsSubject.next($event)">
+            <!-- ID -->
+            <ng-container
+                    matColumnDef="id"
+                    matflowTableColumn="ID"
+                    #idColumn="matflowTableColumn"
+                    name="id"
+                    queryable
+                    required>
+
+                <th mat-header-cell *matHeaderCellDef cdkDrag>
+                    {{idColumn?.displayName$ | async}}
+                    <span cdkDragHandle>☰</span>
+
+                    <div *cdkDragPreview>
+                        {{idColumn?.displayName$ | async}}
+                    </div>
+                </th>
+                <td mat-cell *matCellDef="let row">
+                    {{ row.id }}
+                </td>
+
+            </ng-container>
+
+            <!-- Name -->
+            <ng-container
+                    matColumnDef="name"
+                    matflowTableColumn="Name"
+                    #nameColumn="matflowTableColumn"
+                    name="name"
+                    queryable
+                    groupable>
+                <th mat-header-cell *matHeaderCellDef cdkDrag>
+                    {{nameColumn?.displayName$ | async}}
+                    <span cdkDragHandle>☰</span>
+
+                    <div *cdkDragPreview>
+                        {{nameColumn?.displayName$ | async}}
+                    </div>
+                </th>
+                <td mat-cell *matCellDef="let row">
+                    {{ row.name }}
+                </td>
+            </ng-container>
+        </ng-container>
+
+        <tr mat-header-row
+            *matHeaderRowDef="(userTable?.displayedColumns$ | async); sticky: true"></tr>
+        <tr mat-row *matRowDef="let row; columns: (userTable?.displayedColumns$ | async)"></tr>
+
+    </table>
+</ng-container>
+```
+---
+
+## 4. Column manager
+```html
+    <matflow-table-columns-manager></matflow-table-columns-manager>
+```
+place this component inside your table wherever you need. all css styles needs to be managed from your end
+
+## 5. Reactive State Layer
+
+```ts
+availableColumns$ = this.facade.availableColumns$;
+```
+
+Everything is observable:
+- columns
+- visibility
+- ordering
+- state
+
+---
+
+# 🧪 Development
+
+## Run App
 
 ```bash
-ng e2e
+npm start
 ```
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+## Watch Table Module
 
-## Additional Resources
+```bash
+npm run watch:table
+```
 
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+## Test
+
+```bash
+npm test
+```
+
+## Lint
+
+```bash
+npm run lint
+```
+
+---
+
+# 🔮 Future Enhancements
+
+- Virtual scrolling (CDK)
+- Table Grouping
+- Plugin ecosystem
+- Inline table editor
+
+---
+
+# 🤝 Contributing
+
+PRs are welcome. Please ensure:
+
+- Code is linted
+- Tests pass
+- APIs are documented
+
+---
+
+# 📄 License
+
+MIT License

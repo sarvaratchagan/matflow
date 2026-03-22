@@ -4,7 +4,7 @@ import { MatTableModule } from '@angular/material/table';
 import { DragDropModule } from '@angular/cdk/drag-drop';
 import { UserTableSettingsAdapter} from './user-table-settings-adapter';
 import { MatflowTableModule, TABLE_COLUMN_SETTINGS_ADAPTER, MatflowTableDirective, TableColumn } from 'matflow-table';
-import {ReplaySubject, combineLatest, Observable, tap} from 'rxjs';
+import { ReplaySubject, combineLatest, Observable, tap } from 'rxjs';
 import { map, filter } from 'rxjs/operators';
 
 export interface User {
@@ -56,15 +56,13 @@ export class UsersTableComponent implements OnInit, AfterViewInit {
 
   ngAfterViewInit() {
     const displayedColumns$: Observable<(string | undefined)[]> = this.usersTable.displayedColumns$?.pipe(
-      filter(columns => !!columns),
-      tap(cols => console.log(cols))
+      filter(columns => !!columns)
     );
     this.displayedColumns$ = combineLatest([
       this.availableColumns$,
       displayedColumns$
     ])?.pipe(
       map(([availableColumns, displayedColumns]: [TableColumn[], (string | undefined)[]]) => {
-        debugger;
         return (
           availableColumns
             ?.filter(column =>
